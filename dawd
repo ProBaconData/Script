@@ -44,7 +44,7 @@ end
 
 wait(0.5)
 
-local playerName = "macedo2200"
+local playerName = "migsgarcia30"
 local shipName = game.Players.LocalPlayer.Name .. ' Ship'
 
 local success, err = pcall(function()
