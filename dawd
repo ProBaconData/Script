@@ -1,0 +1,71 @@
+local f = {}
+local tweenService = game:GetService("TweenService")
+local info = TweenInfo.new()
+
+f.tweenModel = function(model, CF)
+    if not model or not model:IsA("Model") then
+        warn("Invalid model provided for tweening.")
+        return
+    end
+    
+    local primaryPart = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart")
+    if not primaryPart then
+        warn("No primary part found in model.")
+        return
+    end
+
+    local CFrameValue = Instance.new("CFrameValue")
+    CFrameValue.Value = primaryPart.CFrame
+
+    CFrameValue:GetPropertyChangedSignal("Value"):Connect(function()
+        model:SetPrimaryPartCFrame(CFrameValue.Value)
+    end)
+
+    local tween = tweenService:Create(CFrameValue, info, {Value = CF})
+    tween:Play()
+
+    tween.Completed:Connect(function()
+        CFrameValue:Destroy()
+    end)
+end
+
+local args = {
+    [1] = "Rowboat",
+    [2] = "ShipA"
+}
+
+local success, err = pcall(function()
+    game:GetService("ReplicatedStorage"):WaitForChild("Chest"):WaitForChild("Remotes"):WaitForChild("Events"):WaitForChild("Ship"):FireServer(unpack(args))
+end)
+
+if not success then
+    warn("Failed to fire server event: " .. err)
+end
+
+wait(0.5)
+
+local playerName = "macedo2200"
+local shipName = game.Players.LocalPlayer.Name .. ' Ship'
+
+local success, err = pcall(function()
+    local ship = workspace.Ships:FindFirstChild(shipName)
+    
+    if ship then
+        local vehicleSeat = ship:WaitForChild('VehicleSeat', 10) -- Wait 10 seconds max for VehicleSeat
+        
+        repeat
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = vehicleSeat.CFrame
+        until game.Players.LocalPlayer.Character.Humanoid.Sit == false
+        
+        wait(1)
+        f.tweenModel(ship, game.Players[playerName].Character.HumanoidRootPart.CFrame)
+        wait(2)
+        f.tweenModel(ship, CFrame.new(4056, 46, 10076))
+    else
+        warn("Ship not found.")
+    end
+end)
+
+if not success then
+    warn("An error occurred: " .. err)
+end
